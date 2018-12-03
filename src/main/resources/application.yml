@@ -1,0 +1,18 @@
+server:
+  port: 9070
+spring:
+  application:
+    name: forum-signin
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password:
+    database: 9
+    timeout: 3600ms
+    lettuce:
+      shutdown-timeout: 5000ms
+      pool:
+        max-active: 15
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
