@@ -9,5 +9,5 @@ import lombok.Data;
 @Data
 public class MemberSignInReq {
     private String name;
-    private String telephone;
+    private String idCard;
 }

@@ -20,6 +20,7 @@ import java.util.Objects;
  * @author xsomnus_xiawenye
  * @since 2018-12-04 00:12
  **/
+/*
 @EnableCaching
 @Configuration
 public class RedisConfigure {
@@ -48,3 +49,4 @@ public class RedisConfigure {
         return template;
     }
 }
+*/
