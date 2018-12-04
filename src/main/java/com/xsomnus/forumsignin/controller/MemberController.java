@@ -23,7 +23,7 @@ import java.util.Map;
  * @since 2018-12-03 23:34
  **/
 @RestController
-@RequestMapping("/member")
+@RequestMapping("/api/member")
 public class MemberController {
 
 
