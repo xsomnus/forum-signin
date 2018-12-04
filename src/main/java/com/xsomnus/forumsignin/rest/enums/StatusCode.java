@@ -16,7 +16,8 @@ public enum StatusCode implements RestStatus {
     SYSTEM_ERROR(-1, "系统繁忙，请稍后重试"),
     MEMBER_NOT_EXIST(101001, "用户不存在"),
     MEMBER_NAME_NOT_MATCH(101002, "身份证与姓名不匹配"),
-    SIGNED(101003, "已签到");
+    SIGNED(101003, "已签到"),
+    SIGNED_INFO_EMPTY(101004, "签到信息不存在");
 
     private static final ImmutableMap<Integer, StatusCode> CACHE;
 

@@ -1,11 +1,13 @@
 package com.xsomnus.forumsignin.controller;
 
+import com.xsomnus.forumsignin.config.ForumEventProperties;
 import com.xsomnus.forumsignin.constant.Constants;
 import com.xsomnus.forumsignin.constant.SignInLuaConstant;
 import com.xsomnus.forumsignin.pojo.requests.MemberSignInReq;
 import com.xsomnus.forumsignin.rest.enums.StatusCode;
 import com.xsomnus.forumsignin.rest.result.Result;
 import com.xsomnus.forumsignin.rest.result.ResultUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisScriptingCommands;
@@ -22,6 +24,7 @@ import java.util.Map;
  * @author xsomnus_xiawenye
  * @since 2018-12-03 23:34
  **/
+@Slf4j
 @RestController
 @RequestMapping("/api/member")
 public class MemberController {
@@ -30,6 +33,9 @@ public class MemberController {
     private RedisScriptingCommands scriptingCommands;
 
     private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    ForumEventProperties eventProperties;
 
     @Autowired
     public MemberController(StringRedisTemplate stringRedisTemplate) {
@@ -67,11 +73,17 @@ public class MemberController {
 
     @GetMapping("/signin")
     public Mono<Result> getSignInDetail(@RequestParam String idCard) {
+        log.info("lists:{}", eventProperties);
         OffsetDateTime now = OffsetDateTime.now();
         String serialNoKey = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String signKey = String.format(Constants.SIGN_USERS, serialNoKey, idCard);
         Map<Object, Object> objectMap = stringRedisTemplate.opsForHash().entries(signKey);
-        return Mono.just(ResultUtil.success(objectMap));
+        if (objectMap.isEmpty()) {
+            return Mono.just(ResultUtil.error(StatusCode.SIGNED_INFO_EMPTY));
+        } else {
+            return Mono.just(ResultUtil.success(objectMap));
+        }
+
     }
 
 

@@ -4,9 +4,9 @@ spring:
   application:
     name: forum-signin
   redis:
-    host: 192.168.1.220
+    host: 127.0.0.1
     port: 6379
-    password: 123456
+    password:
     database: 9
     timeout: 3600ms
     lettuce:
@@ -16,3 +16,23 @@ spring:
         max-wait: -1ms
         max-idle: 8
         min-idle: 0
+forum:
+  events:
+    lists:
+    - id: uybdf5fl0jiwedil8
+      start-time: 2018-12-08 16:30:00
+      end-time: 2018-12-08 16:40:00
+      reward-scores: 10
+    - id: 8q0t83vbst9c
+      start-time: 2018-12-09 11:30:00
+      end-time: 2018-12-09 11:35:59
+      reward-scores: 8
+    maps:
+      uybdf5fl0jiwedil8:
+        start-time: 2018-12-08 16:30:00
+        end-time: 2018-12-08 16:40:00
+        reward-scores: 10
+      8q0t83vbst9c:
+        start-time: 2018-12-09 11:30:00
+        end-time: 2018-12-09 11:35:59
+        reward-scores: 8
