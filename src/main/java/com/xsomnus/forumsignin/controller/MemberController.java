@@ -11,14 +11,12 @@ import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisScriptingCommands;
 import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 /**
  * @author xsomnus_xiawenye
@@ -31,8 +29,11 @@ public class MemberController {
 
     private RedisScriptingCommands scriptingCommands;
 
+    private StringRedisTemplate stringRedisTemplate;
+
     @Autowired
     public MemberController(StringRedisTemplate stringRedisTemplate) {
+        this.stringRedisTemplate = stringRedisTemplate;
         scriptingCommands = stringRedisTemplate.execute(RedisConnection::scriptingCommands);
     }
 
@@ -44,7 +45,7 @@ public class MemberController {
         String signKey = String.format(Constants.SIGN_USERS, serialNoKey, req.getIdCard());
         byte[] signTime = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).getBytes();
         assert scriptingCommands != null;
-        Object result = scriptingCommands.eval(
+        Long result = scriptingCommands.eval(
                 SignInLuaConstant.signInScript.getBytes(),
                 ReturnType.INTEGER,
                 3,
@@ -56,7 +57,21 @@ public class MemberController {
                 signTime
         );
         assert result != null;
-        return Mono.just(ResultUtil.error(StatusCode.getByCode(Integer.parseInt(result.toString()))));
+
+        if (result.intValue() == StatusCode.SUCCESS.getCode()) {
+            return Mono.just(ResultUtil.success(req.getIdCard()));
+        } else {
+            return Mono.just(ResultUtil.error(StatusCode.getByCode(result.intValue())));
+        }
+    }
+
+    @GetMapping("/signin")
+    public Mono<Result> getSignInDetail(@RequestParam String idCard) {
+        OffsetDateTime now = OffsetDateTime.now();
+        String serialNoKey = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String signKey = String.format(Constants.SIGN_USERS, serialNoKey, idCard);
+        Map<Object, Object> objectMap = stringRedisTemplate.opsForHash().entries(signKey);
+        return Mono.just(ResultUtil.success(objectMap));
     }
 
 

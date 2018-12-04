@@ -1,50 +1,30 @@
-local tokens_key = KEYS[1]
-local timestamp_key = KEYS[2]
---redis.log(redis.LOG_WARNING, "tokens_key " .. tokens_key)
+local id_card_key = KEYS[1]
+local serial_no_key = KEYS[2]
+local sign_key = KEYS[3]
 
-local rate = tonumber(ARGV[1])
-local capacity = tonumber(ARGV[2])
-local now = tonumber(ARGV[3])
-local requested = tonumber(ARGV[4])
 
-local fill_time = capacity/rate
-local ttl = math.floor(fill_time*2)
-
---redis.log(redis.LOG_WARNING, "rate " .. ARGV[1])
---redis.log(redis.LOG_WARNING, "capacity " .. ARGV[2])
---redis.log(redis.LOG_WARNING, "now " .. ARGV[3])
---redis.log(redis.LOG_WARNING, "requested " .. ARGV[4])
---redis.log(redis.LOG_WARNING, "filltime " .. fill_time)
---redis.log(redis.LOG_WARNING, "ttl " .. ttl)
-
-local last_tokens = tonumber(redis.call("get", tokens_key))
-if last_tokens == nil then
-  last_tokens = capacity
+-- 判断用户是否存在
+local hasIdKey = redis.call('EXISTS', id_card_key);
+if hasIdKey ~= 1 then
+    return 101001;
 end
---redis.log(redis.LOG_WARNING, "last_tokens " .. last_tokens)
-
-local last_refreshed = tonumber(redis.call("get", timestamp_key))
-if last_refreshed == nil then
-  last_refreshed = 0
-end
---redis.log(redis.LOG_WARNING, "last_refreshed " .. last_refreshed)
-
-local delta = math.max(0, now-last_refreshed)
-local filled_tokens = math.min(capacity, last_tokens+(delta*rate))
-local allowed = filled_tokens >= requested
-local new_tokens = filled_tokens
-local allowed_num = 0
-if allowed then
-  new_tokens = filled_tokens - requested
-  allowed_num = 1
+-- 判断用户姓名与身份证号是否匹配
+local predicateUsername = redis.call('GET', id_card_key);
+if predicateUsername ~= ARGV[1] then
+    return 101002;
 end
 
---redis.log(redis.LOG_WARNING, "delta " .. delta)
---redis.log(redis.LOG_WARNING, "filled_tokens " .. filled_tokens)
---redis.log(redis.LOG_WARNING, "allowed_num " .. allowed_num)
---redis.log(redis.LOG_WARNING, "new_tokens " .. new_tokens)
+--- 判断用户是否已签到
+local hasSigned = redis.call('EXISTS', sign_key);
+if hasSigned ~= 0 then
+    return 101003;
+end
 
-redis.call("setex", tokens_key, ttl, new_tokens)
-redis.call("setex", timestamp_key, ttl, now)
+local serialNo = redis.call('INCR', serial_no_key);
 
-return { allowed_num, new_tokens }
+redis.call('HSET', sign_key, 'serialNo', serialNo);
+redis.call('HSET', sign_key, 'idCard', ARGV[2]);
+redis.call('HSET', sign_key, 'signTime', ARGV[3]);
+redis.call('HSET', sign_key, 'name', ARGV[1]);
+
+return 0;

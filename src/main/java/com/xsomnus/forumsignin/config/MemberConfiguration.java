@@ -23,7 +23,6 @@ public class MemberConfiguration {
         RedisSerializationContext.RedisSerializationContextBuilder<String, Member> builder =
                 RedisSerializationContext.newSerializationContext(new StringRedisSerializer());
         RedisSerializationContext<String, Member> context = builder.value(serializer).build();
-
         return new ReactiveRedisTemplate<>(factory, context);
     }
 
