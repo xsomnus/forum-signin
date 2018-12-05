@@ -1,12 +1,13 @@
 package com.xsomnus.forumsignin.config;
 
+import com.xsomnus.forumsignin.utils.OffsetDateTimeUtils;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,15 +19,21 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "forum.events")
 public class ForumEventProperties {
 
-    private List<EventProperties> lists = new ArrayList<>();
-
     private Map<String, EventProperties> maps = new HashMap<>();
 
     @Data
     public static class EventProperties {
         String id;
-        String startTime;
-        String endTime;
+        String start;
+        String end;
         Integer rewardScores;
+
+        public OffsetDateTime getStartTime() {
+            return OffsetDateTimeUtils.parse(this.start);
+        }
+
+        public OffsetDateTime getEndTime() {
+            return OffsetDateTimeUtils.parse(this.end);
+        }
     }
 }

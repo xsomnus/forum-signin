@@ -5,6 +5,7 @@ import com.xsomnus.forumsignin.constant.Constants;
 import com.xsomnus.forumsignin.constant.SignInLuaConstant;
 import com.xsomnus.forumsignin.pojo.requests.MemberSignInReq;
 import com.xsomnus.forumsignin.rest.enums.StatusCode;
+import com.xsomnus.forumsignin.rest.exception.RestException;
 import com.xsomnus.forumsignin.rest.result.Result;
 import com.xsomnus.forumsignin.rest.result.ResultUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -44,8 +45,21 @@ public class MemberController {
     }
 
     @PostMapping("/signin")
-    public Mono<Result> signIn(@RequestBody MemberSignInReq req) {
+    public Mono<Result> signIn(@RequestBody MemberSignInReq req, @RequestParam String token) {
+
+        ForumEventProperties.EventProperties eventProperties = this.eventProperties.getMaps().get(token);
+        OffsetDateTime startTime = eventProperties.getStartTime();
+        OffsetDateTime endTime = eventProperties.getEndTime();
         OffsetDateTime now = OffsetDateTime.now();
+
+        if (now.isBefore(startTime)) {
+            throw new RestException(StatusCode.EVENT_NOT_STARTED);
+        }
+
+        if (now.isAfter(endTime)) {
+            throw new RestException(StatusCode.EVENT_STOPPED);
+        }
+
         String idCardKey = String.format(Constants.BASE_MEMBERS, req.getIdCard());
         String serialNoKey = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String signKey = String.format(Constants.SIGN_USERS, serialNoKey, req.getIdCard());
@@ -83,7 +97,11 @@ public class MemberController {
         } else {
             return Mono.just(ResultUtil.success(objectMap));
         }
+    }
 
+    @PostMapping("/members/save")
+    public Mono<Result> addMembers() {
+        return Mono.just(ResultUtil.success());
     }
 
 
