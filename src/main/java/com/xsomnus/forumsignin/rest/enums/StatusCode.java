@@ -20,8 +20,8 @@ public enum StatusCode implements RestStatus {
     SIGNED(101003, "已签到"),
     SIGNED_INFO_EMPTY(101004, "签到信息不存在"),
     EVENT_NOT_STARTED(101005, "活动未开始"),
-    EVENT_STOPPED(101006, "今日活动已结束")
-    ;
+    EVENT_STOPPED(101006, "今日活动已结束"),
+    KEY_NOT_CORRECT(101007, "密码不正确");
 
     private static final ImmutableMap<Integer, StatusCode> CACHE;
 

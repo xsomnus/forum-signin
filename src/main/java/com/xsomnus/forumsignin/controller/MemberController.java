@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,7 +28,7 @@ import java.util.Map;
  **/
 @Slf4j
 @RestController
-@RequestMapping("/api/member")
+@RequestMapping("/api/forum/member")
 public class MemberController {
 
 
@@ -51,15 +52,12 @@ public class MemberController {
         OffsetDateTime startTime = eventProperties.getStartTime();
         OffsetDateTime endTime = eventProperties.getEndTime();
         OffsetDateTime now = OffsetDateTime.now();
-
         if (now.isBefore(startTime)) {
             throw new RestException(StatusCode.EVENT_NOT_STARTED);
         }
-
         if (now.isAfter(endTime)) {
             throw new RestException(StatusCode.EVENT_STOPPED);
         }
-
         String idCardKey = String.format(Constants.BASE_MEMBERS, req.getIdCard());
         String serialNoKey = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String signKey = String.format(Constants.SIGN_USERS, serialNoKey, req.getIdCard());
@@ -74,7 +72,8 @@ public class MemberController {
                 signKey.getBytes(),
                 req.getName().getBytes(),
                 req.getIdCard().getBytes(),
-                signTime
+                signTime,
+                String.format("%d", eventProperties.getRewardScores()).getBytes()
         );
         assert result != null;
 
@@ -99,8 +98,19 @@ public class MemberController {
         }
     }
 
-    @PostMapping("/members/save")
-    public Mono<Result> addMembers() {
+    @PostMapping("/save")
+    public Mono<Result> addMembers(@RequestBody MemberSignInReq req) {
+        if (req.getKey().equals(eventProperties.getKey())) {
+            stringRedisTemplate.opsForValue().set(String.format(Constants.BASE_MEMBERS, req.getIdCard()), req.getName());
+            return Mono.just(ResultUtil.success());
+        } else {
+            throw new RestException(StatusCode.KEY_NOT_CORRECT);
+        }
+    }
+
+    @PostMapping("/save/batch")
+    public Mono<Result> addMembers(@RequestBody List<MemberSignInReq> list) {
+        list.forEach(req -> stringRedisTemplate.opsForValue().set(String.format(Constants.BASE_MEMBERS, req.getIdCard()), req.getName()));
         return Mono.just(ResultUtil.success());
     }
 

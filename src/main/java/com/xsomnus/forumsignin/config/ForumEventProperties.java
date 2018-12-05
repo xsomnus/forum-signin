@@ -18,12 +18,11 @@ import java.util.Map;
 @Component
 @ConfigurationProperties(prefix = "forum.events")
 public class ForumEventProperties {
-
+    private String key;
     private Map<String, EventProperties> maps = new HashMap<>();
 
     @Data
     public static class EventProperties {
-        String id;
         String start;
         String end;
         Integer rewardScores;

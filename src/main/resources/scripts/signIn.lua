@@ -25,6 +25,7 @@ local serialNo = redis.call('INCR', serial_no_key);
 redis.call('HSET', sign_key, 'serialNo', serialNo);
 redis.call('HSET', sign_key, 'idCard', ARGV[2]);
 redis.call('HSET', sign_key, 'signTime', ARGV[3]);
+redis.call('HSET', sign_key, 'scores', ARGV[4]);
 redis.call('HSET', sign_key, 'name', ARGV[1]);
 
 return 0;

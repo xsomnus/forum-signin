@@ -4,32 +4,31 @@ spring:
   application:
     name: forum-signin
   redis:
-    host: 192.168.1.220
+    host: hourrent.redis.rds.aliyuncs.com
     port: 6379
-    password: 123456
-    database: 9
+    password: '@6F#n2F87A'
+    database: 11
     timeout: 3600ms
     lettuce:
       shutdown-timeout: 5000ms
       pool:
         max-active: 15
         max-wait: -1ms
-        max-idle: 8
+        max-idle: 100
         min-idle: 0
 forum:
   events:
+    key: abc654321
     maps:
-      uybdf5fl0jiwedil8:
-#        start: 2018-12-08 16:30:00
-#        end: 2018-12-08 16:40:00
-#        reward-scores: 10
+      qwvlas0awhx7ge:
         start: 2018-12-05 10:20:00
-        end: 2018-12-05 11:40:00
+        end: 2018-12-10 11:40:00
+        reward-scores: 1
+      uybdf5fl0jiwedil8:
+        start: 2018-12-08 16:30:00
+        end: 2018-12-08 16:40:00
         reward-scores: 10
       8q0t83vbst9c:
-#        start: 2018-12-09 11:30:00
-#        end: 2018-12-09 11:35:59
-#        reward-scores: 8
         start: 2018-12-09 11:30:00
         end: 2018-12-09 11:35:59
         reward-scores: 8
