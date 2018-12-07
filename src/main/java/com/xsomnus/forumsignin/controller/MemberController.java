@@ -3,6 +3,7 @@ package com.xsomnus.forumsignin.controller;
 import com.xsomnus.forumsignin.config.ForumEventProperties;
 import com.xsomnus.forumsignin.constant.Constants;
 import com.xsomnus.forumsignin.constant.SignInLuaConstant;
+import com.xsomnus.forumsignin.pojo.entity.Member;
 import com.xsomnus.forumsignin.pojo.requests.MemberSignInReq;
 import com.xsomnus.forumsignin.rest.enums.StatusCode;
 import com.xsomnus.forumsignin.rest.exception.RestException;
@@ -21,6 +22,8 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author xsomnus_xiawenye
@@ -112,6 +115,22 @@ public class MemberController {
     public Mono<Result> addMembers(@RequestBody List<MemberSignInReq> list) {
         list.forEach(req -> stringRedisTemplate.opsForValue().set(String.format(Constants.BASE_MEMBERS, req.getIdCard()), req.getName()));
         return Mono.just(ResultUtil.success());
+    }
+
+    @GetMapping("/list")
+    public List<Member> listAll() {
+        Set<String> keys = stringRedisTemplate.keys(String.format(Constants.BASE_MEMBERS, "*"));
+        if (keys != null && !keys.isEmpty()) {
+            return keys.stream()
+                    .map(key -> {
+                        Member member = new Member();
+                        member.setIdCard(key.substring("BaseMembers:".length()));
+                        member.setName(stringRedisTemplate.opsForValue().get(key));
+                        return member;
+                    }).collect(Collectors.toList());
+        }
+        return null;
+
     }
 
 

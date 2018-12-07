@@ -13,4 +13,12 @@ public class MemberTest {
         long i = 1;
         System.out.println(String.format("%04d", i));
     }
+    @Test
+    public void sub() {
+        String key = "BaseMembers:411524199211105635";
+
+        String substring = key.substring("BaseMembers:".length());
+        System.out.println(substring);
+
+    }
 }

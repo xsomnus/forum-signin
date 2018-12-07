@@ -2,10 +2,14 @@ package com.xsomnus.forumsignin.controller;
 
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -16,10 +20,14 @@ import static org.junit.Assert.*;
 
 public class MemberControllerTest {
 
+
+    ObjectMapper objectMapper = new ObjectMapper();
+
     @Test
-    public void addMembers() {
+    public void addMembers() throws JsonProcessingException {
         ExcelReader reader = ExcelUtil.getReader("G:\\java\\playgrounds\\forum-signin\\src\\main\\resources\\xls\\infoList.xls");
-        List<List<Object>> readAll = reader.read();
-        System.out.println(readAll);
+        List<Map<String, Object>> maps = reader.readAll();
+        String s = objectMapper.writeValueAsString(maps);
+        System.out.println(s);
     }
 }
